@@ -1,0 +1,5 @@
+/public/
+.DS_Store
+package/
+vendor/
+composer.lock

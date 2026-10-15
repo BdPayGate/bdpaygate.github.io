@@ -1,0 +1,51 @@
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *' # pick up doc changes from the package repos daily
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: byteminus/laravel-bdpaygate
+          path: package
+      - uses: actions/checkout@v4
+        with:
+          repository: byteminus/bdpaygate-js
+          path: node-package
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - run: composer install --no-dev --no-interaction --no-progress
+      - name: Build the site
+        run: php build.php
+        env:
+          SITE_URL: https://bdpaygate.github.io
+          PACKAGE_DIR: package
+          NODE_PACKAGE_DIR: node-package
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,414 @@
+<title>BDPayGate</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;700;800&family=Hind+Siliguri:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: editorial, left-aligned. Hero = thesis + live verification ledger; sections pair a narrow label column with content. */
+:root {
+  --paper: #f5f8f5;
+  --panel: #ffffff;
+  --ink: #10201a;
+  --muted: #4d5f57;
+  --line: #d4ddd7;
+  --green: #00694d;
+  --green-soft: #e1efe9;
+  --sun: #d6343a;
+  --sun-soft: #fbe7e6;
+  --code-bg: #0f1d18;
+  --code-ink: #dce8e2;
+  --code-dim: #7f978c;
+  --code-key: #6fd3a8;
+  --code-str: #f0b78a;
+  --font-display: "Anek Bangla", "Hind Siliguri", system-ui, sans-serif;
+  --font-body: "Hind Siliguri", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3rem;
+  --step-2: 1.75rem;
+  --step-3: clamp(2rem, 1.4rem + 2.4vw, 3rem);
+  --step-4: clamp(2.4rem, 1.5rem + 4vw, 4.4rem);
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0b1512; --panel: #111f1a; --ink: #e5eee9; --muted: #9db1a7; --line: #22332c;
+    --green: #35c48f; --green-soft: #12291f; --sun: #ff6b6e; --sun-soft: #2c1617;
+    --code-bg: #08110e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0b1512; --panel: #111f1a; --ink: #e5eee9; --muted: #9db1a7; --line: #22332c;
+  --green: #35c48f; --green-soft: #12291f; --sun: #ff6b6e; --sun-soft: #2c1617;
+  --code-bg: #08110e; color-scheme: dark;
+}
+
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.65; }
+a { color: var(--green); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+p { margin: 0; }
+code, pre, .mono { font-family: var(--font-mono); }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.band { padding-block: clamp(56px, 8vw, 104px); }
+.band + .band { border-top: 1px solid var(--line); }
+
+/* Header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand b { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.01em; }
+.brand .taka { color: var(--sun); font-weight: 800; }
+.brand small { color: var(--muted); font-size: var(--step--1); }
+.top nav { display: flex; gap: 20px; flex-wrap: wrap; font-size: var(--step--1); }
+.top nav a { color: var(--muted); text-decoration: none; }
+.top nav a:hover { color: var(--ink); }
+@media (max-width: 640px) { .top nav { display: none; } .brand small { display: none; } }
+
+/* Hero */
+.hero { padding-block: clamp(40px, 7vw, 88px) clamp(48px, 7vw, 88px); }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+@media (max-width: 880px) { .hero .wrap { grid-template-columns: minmax(0, 1fr); } }
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); }
+.hero h1 { font-size: var(--step-4); font-weight: 800; margin-top: 14px; }
+.hero h1 em { font-style: normal; color: var(--green); }
+.lede { margin-top: 20px; max-width: 60ch; color: var(--muted); font-size: var(--step-1); line-height: 1.5; }
+.install { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
+.cmd { display: flex; align-items: center; gap: 12px; min-width: 0; background: var(--code-bg); color: var(--code-ink); border-radius: var(--radius); padding: 12px 12px 12px 16px; font-family: var(--font-mono); font-size: 0.92rem; }
+.cmd span { overflow-x: auto; white-space: nowrap; }
+.cmd span::before { content: "$ "; color: var(--code-dim); }
+.btn { font: 600 0.9rem var(--font-body); border-radius: 8px; padding: 10px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; }
+.btn:hover { border-color: var(--green); }
+.cmd .btn { background: transparent; color: var(--code-ink); border-color: #34483f; padding: 6px 12px; font-size: 0.8rem; flex: none; }
+.facts { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--muted); font-size: var(--step--1); }
+.facts b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.also { margin-top: 14px; color: var(--muted); font-size: var(--step--1); }
+.also code { font-family: var(--font-mono); color: var(--ink); }
+.frameworks { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; padding: 0; list-style: none; }
+.frameworks li { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: var(--step--1); background: var(--panel); }
+
+/* The ledger: what actually happens to one payment */
+.ledger { background: var(--code-bg); color: var(--code-ink); border-radius: 14px; padding: 20px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; min-width: 0; box-shadow: 0 30px 60px -30px rgba(0, 40, 28, 0.45); }
+.ledger header { display: flex; justify-content: space-between; gap: 12px; color: var(--code-dim); font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; padding-bottom: 12px; border-bottom: 1px dashed #2a3c34; margin-bottom: 12px; }
+.ledger ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ledger li { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; padding: 6px 8px; border-radius: 6px; animation: scan 9s infinite; }
+.ledger li:nth-child(2) { animation-delay: 1.5s; } .ledger li:nth-child(3) { animation-delay: 3s; }
+.ledger li:nth-child(4) { animation-delay: 4.5s; } .ledger li:nth-child(5) { animation-delay: 6s; } .ledger li:nth-child(6) { animation-delay: 7.5s; }
+@keyframes scan { 0%, 14% { background: rgba(111, 211, 168, 0.1); } 18%, 100% { background: transparent; } }
+.ledger time { color: var(--code-dim); font-variant-numeric: tabular-nums; }
+.ledger .k { color: var(--code-key); } .ledger .s { color: var(--code-str); }
+.ledger .no { color: #ff8f8a; } .ledger .ok { color: #6fd3a8; font-weight: 600; }
+.ledger p { color: var(--code-dim); }
+.ledger footer { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #2a3c34; color: var(--code-dim); font-size: 0.74rem; }
+@media (prefers-reduced-motion: reduce) { .ledger li { animation: none; } }
+
+/* Section scaffolding */
+.sec { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); }
+@media (max-width: 820px) { .sec { grid-template-columns: minmax(0, 1fr); } }
+.sec > header h2 { font-size: var(--step-3); font-weight: 700; }
+.sec > header p { margin-top: 12px; color: var(--muted); max-width: 40ch; }
+.sec-body { min-width: 0; }
+
+/* Promises */
+.promises { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; }
+@media (max-width: 640px) { .promises { grid-template-columns: minmax(0, 1fr); } }
+.promise h3 { font-size: var(--step-1); font-weight: 700; }
+.promise p { margin-top: 8px; color: var(--muted); max-width: 52ch; }
+.promise .tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sun); display: block; margin-bottom: 8px; }
+
+/* Gateways table */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.chip { font: 500 0.85rem var(--font-body); border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+table { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 0.95rem; }
+th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.74rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: color-mix(in srgb, var(--paper) 60%, var(--panel)); }
+tbody tr:last-child td { border-bottom: 0; }
+td.gw { font-weight: 600; white-space: nowrap; }
+td.gw small { display: block; font-weight: 400; color: var(--muted); font-size: 0.82rem; }
+.pill { display: inline-block; font-size: 0.78rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+.pill.verified { background: var(--green-soft); color: var(--green); }
+.pill.beta { background: color-mix(in srgb, var(--line) 55%, transparent); color: var(--ink); }
+.pill.exp { background: var(--sun-soft); color: var(--sun); }
+.note { margin-top: 14px; color: var(--muted); font-size: var(--step--1); max-width: 70ch; }
+
+/* Flow */
+.flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: step; }
+.flow li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; padding-block: 18px; border-bottom: 1px solid var(--line); counter-increment: step; }
+.flow li:last-child { border-bottom: 0; }
+.flow li::before { content: counter(step); font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; color: var(--green); line-height: 1; }
+.flow h3 { font-size: var(--step-1); font-weight: 700; }
+.flow p { margin-top: 6px; color: var(--muted); max-width: 60ch; }
+.flow li.stop::before { color: var(--sun); }
+
+/* Code tabs */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.tab { font: 600 0.9rem var(--font-body); background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; margin-bottom: -1px; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--green); }
+.code { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 0 0 var(--radius) var(--radius); padding: 20px; overflow-x: auto; font-size: 0.86rem; line-height: 1.6; }
+.code .c { color: var(--code-dim); } .code .k { color: var(--code-key); } .code .s { color: var(--code-str); }
+
+/* FAQ */
+.faq { display: grid; gap: 0; }
+.faq details { border-bottom: 1px solid var(--line); padding-block: 16px; }
+.faq summary { cursor: pointer; font-weight: 600; font-size: var(--step-1); font-family: var(--font-display); list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--green); font-weight: 700; }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { margin-top: 10px; color: var(--muted); max-width: 66ch; }
+
+/* Closing */
+.closing .wrap { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 24px; }
+.closing h2 { font-size: var(--step-3); font-weight: 800; max-width: 18ch; }
+.closing h2 span { color: var(--sun); }
+.foot { border-top: 1px solid var(--line); padding-block: 28px; color: var(--muted); font-size: var(--step--1); }
+.foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top"><b>BDPay<span class="taka">৳</span>Gate</b><small>for Laravel</small></a>
+    <nav aria-label="Sections">
+      <a href="#gateways">Gateways</a>
+      <a href="#how">How it verifies</a>
+      <a href="#code">Code</a>
+      <a href="#faq">FAQ</a>
+      <a href="/docs/">Docs</a>
+      <a href="/node/">Node.js</a>
+      <a href="https://github.com/byteminus/laravel-bdpaygate">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Laravel payment gateway for Bangladesh</p>
+        <h1>Every Bangladeshi payment gateway. <em>One Laravel API.</em></h1>
+        <p class="lede">Accept bKash, Nagad, SSLCommerz, Upay, ShurjoPay, aamarPay, PortPos, PayStation, UddoktaPay, Moneybag, EPS and DGePay with the same three lines of code. Every payment is confirmed with the gateway before your order is marked paid.</p>
+        <div class="install">
+          <div class="cmd"><span id="cmd-text">composer require byteminus/laravel-bdpaygate</span><button class="btn" id="copy" type="button">Copy</button></div>
+        </div>
+        <p class="also">Using Node.js? <code>npm install bdpaygate</code> · <a href="/node/">Express, Next.js, NestJS and more</a></p>
+        <p class="facts"><span><b>12</b> gateways</span><span><b>7</b> proven on real sandboxes</span><span><b>401</b> tests</span><span>Laravel <b>11–13</b> · PHP <b>8.2–8.5</b></span><span><b>MIT</b> licensed</span></p>
+      </div>
+
+      <figure class="ledger" aria-label="Log of one bKash payment being verified">
+        <header><span>payment BPWR5VKNM2O9</span><span>৳120.00 · bkash</span></header>
+        <ol>
+          <li><time>12:09:41</time><span><span class="k">charge</span> created, customer sent to bKash</span></li>
+          <li><time>12:10:12</time><span><span class="k">callback</span> says <span class="s">"success"</span> <span class="no">· not trusted yet</span></span></li>
+          <li><time>12:10:12</time><span><span class="k">signature</span> matches the one bKash issued</span></li>
+          <li><time>12:10:14</time><span><span class="k">execute</span> → bKash: Completed, trxID <span class="s">DJF00PPRDK</span></span></li>
+          <li><time>12:10:14</time><span><span class="k">amount</span> ৳120.00 = ৳120.00, currency BDT</span></li>
+          <li><time>12:10:15</time><span><span class="ok">completed</span> · PaymentCompleted fired once</span></li>
+        </ol>
+        <footer>From a real bKash sandbox run. A forged callback for the same payment was rejected.</footer>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band" id="why">
+    <div class="wrap sec">
+      <header>
+        <h2>Built for the payment that goes wrong</h2>
+        <p>Most integrations work on the happy path. Money goes missing on the other ones.</p>
+      </header>
+      <div class="sec-body promises">
+        <div class="promise"><span class="tag">Forged callbacks</span><h3>No callback is trusted</h3><p>Redirects, IPNs and webhooks are claims. The package asks the gateway's own API, checks the amount and currency, and only then changes the payment.</p></div>
+        <div class="promise"><span class="tag">Double fulfilment</span><h3>Paid exactly once</h3><p>The IPN and the customer's redirect often arrive together. Status changes are atomic, so <code>PaymentCompleted</code> fires once.</p></div>
+        <div class="promise"><span class="tag">Timeouts</span><h3>A timeout is not a failure</h3><p>If the gateway doesn't answer, the payment stays pending and <code>bdpaygate:sync</code> settles it later. A customer who paid is never marked failed.</p></div>
+        <div class="promise"><span class="tag">Retries</span><h3>Retries can't double charge</h3><p>Each retry is a new attempt with its own gateway id. If a customer pays two of them, you get <code>PaymentDuplicated</code> to refund, not a second order.</p></div>
+        <div class="promise"><span class="tag">Late success</span><h3>Failed can still become paid</h3><p>When a gateway confirms the money moved after a failure was reported, the payment completes. A fake "cancelled" can't strand a paid order.</p></div>
+        <div class="promise"><span class="tag">Logouts</span><h3>Customers stay signed in</h3><p>Gateways return customers with a cross-site POST that wipes Laravel sessions. The callback routes run without sessions, so nobody gets logged out at checkout.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="gateways">
+    <div class="wrap sec">
+      <header>
+        <h2>12 gateways, one interface</h2>
+        <p>bKash, Nagad, SSLCommerz and the rest all use the same <code>charge</code>, callback, <code>sync</code> and <code>refund</code>.</p>
+      </header>
+      <div class="sec-body">
+        <div class="filters" role="group" aria-label="Filter gateways">
+          <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
+          <button class="chip" type="button" data-filter="verified" aria-pressed="false">Proven on sandbox</button>
+          <button class="chip" type="button" data-filter="refund" aria-pressed="false">Refund API</button>
+          <button class="chip" type="button" data-filter="wallet" aria-pressed="false">Mobile wallets</button>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th scope="col">Gateway</th><th scope="col">Status</th><th scope="col">Refunds</th><th scope="col">Sandbox run</th></tr></thead>
+            <tbody id="gw-rows">
+              <tr data-tags="verified refund wallet"><td class="gw">bKash<small>Tokenized Checkout V2, v1.2</small></td><td><span class="pill verified">Stable</span></td><td>Full and partial</td><td>Paid, refunded twice, forged callback rejected</td></tr>
+              <tr data-tags="verified refund"><td class="gw">SSLCommerz<small>Cards, banks, wallets</small></td><td><span class="pill verified">Stable</span></td><td>Full and partial</td><td>Paid, risk flag, partial refund</td></tr>
+              <tr data-tags="verified"><td class="gw">ShurjoPay<small>Cards, wallets, banks</small></td><td><span class="pill verified">Stable</span></td><td>Merchant panel</td><td>Paid and declined</td></tr>
+              <tr data-tags="verified"><td class="gw">aamarPay<small>Cards, wallets, banks</small></td><td><span class="pill verified">Stable</span></td><td>Merchant panel</td><td>Paid and declined</td></tr>
+              <tr data-tags="verified"><td class="gw">PayStation<small>Cards, wallets, banks</small></td><td><span class="pill verified">Stable</span></td><td>Merchant panel</td><td>Paid via bKash</td></tr>
+              <tr data-tags="verified"><td class="gw">Moneybag<small>Cards, wallets</small></td><td><span class="pill verified">Stable</span></td><td>Merchant panel</td><td>Paid and failed</td></tr>
+              <tr data-tags="verified"><td class="gw">UddoktaPay<small>Self-hosted</small></td><td><span class="pill verified">Stable</span></td><td>Merchant panel</td><td>Paid, forged invoice rejected</td></tr>
+              <tr data-tags="wallet"><td class="gw">Nagad<small>Mobile wallet</small></td><td><span class="pill beta">Beta</span></td><td>Merchant panel</td><td>Needs merchant onboarding</td></tr>
+              <tr data-tags="refund wallet"><td class="gw">Upay<small>Mobile wallet</small></td><td><span class="pill beta">Beta</span></td><td>Full</td><td>Needs merchant onboarding</td></tr>
+              <tr data-tags="refund"><td class="gw">PortPos<small>Formerly PortWallet</small></td><td><span class="pill beta">Beta</span></td><td>Full and partial</td><td>Self-serve sandbox</td></tr>
+              <tr data-tags=""><td class="gw">EPS<small>Easy Payment System</small></td><td><span class="pill exp">Experimental</span></td><td>Merchant panel</td><td>Docs on request</td></tr>
+              <tr data-tags=""><td class="gw">DGePay<small>Aggregator</small></td><td><span class="pill exp">Experimental</span></td><td>Merchant panel</td><td>Docs on request</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note"><b>Rocket, OK Wallet and CellFin</b> have no public merchant API of their own. Accept them through SSLCommerz, ShurjoPay or aamarPay. "Merchant panel" means the gateway publishes no refund API, so refunds are made from its dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="how">
+    <div class="wrap sec">
+      <header>
+        <h2>What happens to every payment</h2>
+        <p>The same steps for all 12 gateways. Nothing the browser sends can mark an order paid.</p>
+      </header>
+      <ol class="sec-body flow">
+        <li><div><h3>You call <code>charge()</code></h3><p>The package records a pending attempt with a fresh gateway id and returns the checkout URL to redirect to.</p></div></li>
+        <li><div><h3>The customer pays on the gateway's page</h3><p>bKash, Nagad, a card or a bank. Your app does nothing here.</p></div></li>
+        <li class="stop"><div><h3>The gateway calls back, and is not believed</h3><p>The redirect or IPN only says which payment to check. Its status, amount and ids are ignored.</p></div></li>
+        <li><div><h3>The package asks the gateway's own API</h3><p>Validation, execute or status query, server to server. The answer must name this attempt, and the amount and currency must match.</p></div></li>
+        <li><div><h3>One atomic update, one event</h3><p><code>PaymentCompleted</code>, <code>PaymentFailed</code> or <code>PaymentCancelled</code> fires once. If the gateway can't be reached, the payment stays pending for <code>bdpaygate:sync</code>.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="code">
+    <div class="wrap sec">
+      <header>
+        <h2>The whole integration</h2>
+        <p>Install, add your keys to <code>.env</code>, and write these.</p>
+      </header>
+      <div class="sec-body">
+        <div class="tabs" role="tablist" aria-label="Code examples">
+          <button class="tab" type="button" role="tab" id="tab-charge" aria-controls="panel-charge" aria-selected="true">Take a payment</button>
+          <button class="tab" type="button" role="tab" id="tab-listen" aria-controls="panel-listen" aria-selected="false">Mark the order paid</button>
+          <button class="tab" type="button" role="tab" id="tab-refund" aria-controls="panel-refund" aria-selected="false">Refund</button>
+          <button class="tab" type="button" role="tab" id="tab-test" aria-controls="panel-test" aria-selected="false">Test</button>
+        </div>
+<pre class="code" role="tabpanel" id="panel-charge" aria-labelledby="tab-charge"><code><span class="k">use</span> ByteMinus\BdPayGate\Facades\BdPayGate;
+<span class="k">use</span> ByteMinus\BdPayGate\Data\Customer;
+
+$payment = BdPayGate::<span class="k">driver</span>(<span class="s">'bkash'</span>)-&gt;<span class="k">charge</span>(
+    amount: <span class="s">1500</span>,
+    reference: <span class="s">'ORD-1001'</span>,
+    customer: <span class="k">new</span> Customer(name: <span class="s">'Rahim Uddin'</span>, phone: <span class="s">'01711000000'</span>),
+);
+
+<span class="k">return</span> redirect($payment-&gt;checkout_url);</code></pre>
+<pre class="code" role="tabpanel" id="panel-listen" aria-labelledby="tab-listen" hidden><code><span class="k">use</span> ByteMinus\BdPayGate\Events\PaymentCompleted;
+
+<span class="c">// Fires once, only after the gateway confirmed the payment.</span>
+Event::<span class="k">listen</span>(PaymentCompleted::<span class="k">class</span>, <span class="k">function</span> (PaymentCompleted $event) {
+    Order::<span class="k">where</span>(<span class="s">'number'</span>, $event-&gt;payment-&gt;reference)
+        -&gt;<span class="k">first</span>()
+        -&gt;<span class="k">markPaid</span>($event-&gt;payment-&gt;gateway_transaction_id);
+});</code></pre>
+<pre class="code" role="tabpanel" id="panel-refund" aria-labelledby="tab-refund" hidden><code>$result = BdPayGate::<span class="k">refund</span>($payment, <span class="s">500</span>, <span class="s">'Damaged item'</span>); <span class="c">// partial</span>
+$result = BdPayGate::<span class="k">refund</span>($payment);                        <span class="c">// everything left</span>
+
+$result-&gt;accepted; <span class="c">// the gateway took it</span>
+$result-&gt;pending;  <span class="c">// it settles later at the bank</span></code></pre>
+<pre class="code" role="tabpanel" id="panel-test" aria-labelledby="tab-test" hidden><code><span class="c">// No network, no credentials.</span>
+$fake = BdPayGate::<span class="k">fake</span>();
+
+$payment = BdPayGate::<span class="k">charge</span>(<span class="s">300</span>, <span class="s">'ORD-1'</span>, $customer);
+$this-&gt;<span class="k">get</span>($payment-&gt;checkout_url); <span class="c">// completes it like a real redirect</span>
+
+$fake-&gt;<span class="k">fail</span>($payment);              <span class="c">// or drive it from code</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="node">
+    <div class="wrap sec">
+      <header>
+        <h2>Also for Node.js</h2>
+        <p>The same 12 gateways, the same verification and the same database table, as a typed npm package.</p>
+      </header>
+      <div class="sec-body">
+        <ul class="frameworks" aria-label="Supported frameworks and runtimes">
+          <li>Express</li><li>Next.js</li><li>NestJS</li><li>Fastify</li><li>Hono</li><li>Koa</li><li>Nuxt</li><li>SvelteKit</li><li>React Router / Remix</li><li>Astro</li><li>AdonisJS</li><li>Bun</li><li>Deno</li><li>Cloudflare Workers</li>
+        </ul>
+<pre class="code"><code><span class="c">// app/bdpaygate/[gateway]/[outcome]/route.ts (Next.js)</span>
+<span class="k">export const</span> { GET, POST } = <span class="k">routeHandlers</span>(pay);
+
+<span class="k">const</span> payment = <span class="k">await</span> pay.<span class="k">charge</span>({ gateway: <span class="s">'bkash'</span>, amount: <span class="s">1500</span>, reference: <span class="s">'ORD-1001'</span>, customer });
+redirect(payment.checkoutUrl);
+
+pay.<span class="k">on</span>(<span class="s">'payment.completed'</span>, ({ payment }) =&gt; orders.<span class="k">markPaid</span>(payment.reference));</code></pre>
+        <p class="note">TypeScript, zero runtime dependencies, ESM and CommonJS. Stores for PostgreSQL, MySQL, SQLite, Prisma and MongoDB. The same seven gateways were paid end to end in their sandboxes through the npm package. <a href="/node/">Read the Node.js docs</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap sec">
+      <header>
+        <h2>Questions developers ask</h2>
+      </header>
+      <div class="sec-body faq">
+        <details open><summary>Which Bangladeshi payment gateways does it support?</summary><p>bKash, Nagad, SSLCommerz, Upay, ShurjoPay, aamarPay, PortPos (formerly PortWallet), PayStation, UddoktaPay, Moneybag, EPS and DGePay. Rocket, OK Wallet and CellFin work through SSLCommerz, ShurjoPay or aamarPay.</p></details>
+        <details><summary>Which Laravel and PHP versions are supported?</summary><p>Laravel 11, 12 and 13 on PHP 8.2 to 8.5. Laravel 13 needs PHP 8.3 or newer.</p></details>
+        <details><summary>Can I refund a bKash payment from Laravel?</summary><p>Yes. bKash supports full and partial refunds, up to 10 per transaction, and the package tracks the refunded amount. SSLCommerz, Upay and PortPos also have refund APIs. The other gateways only allow refunds from their merchant panel.</p></details>
+        <details><summary>What happens if the customer closes the browser after paying?</summary><p>The gateway's IPN still completes the payment, and <code>bdpaygate:sync</code> settles any payment whose callback never arrived. Do your fulfilment in a <code>PaymentCompleted</code> listener, not on the thank-you page.</p></details>
+        <details><summary>Can I use two SSLCommerz stores in one app?</summary><p>Yes. Each entry in the config is a separate gateway name with its own credentials, routes and payments, so two stores of the same gateway work side by side.</p></details>
+        <details><summary>How do I test without real payments?</summary><p>Use <code>BdPayGate::fake()</code> in your tests: no network and no credentials. For a real end-to-end check, use the gateway's sandbox keys in a local app.</p></details>
+        <details><summary>Is there a Node.js, Next.js or Express version?</summary><p>Yes. The npm package <code>bdpaygate</code> has the same gateways and verification, with adapters for Express, Next.js, NestJS, Fastify, Hono, Koa, Nuxt, SvelteKit, React Router, Astro and AdonisJS. It runs on Node.js 20.19+, Bun, Deno and Cloudflare Workers, and can share the payments table with the Laravel package.</p></details>
+        <details><summary>Is it free?</summary><p>Yes. BDPayGate is open source under the MIT license.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band closing">
+    <div class="wrap">
+      <h2>Take payments in <span>৳</span> without trusting the browser.</h2>
+      <div class="install"><div class="cmd"><span>composer require byteminus/laravel-bdpaygate</span></div></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>BDPayGate · Laravel payment gateway for Bangladesh · MIT license</span>
+    <span>For AI assistants: <a href="/llms.txt">llms.txt</a> · <a href="/llms-full.txt">full docs</a> · By <a href="https://github.com/byteminus">ByteMinus</a></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const copy = document.getElementById('copy');
+  const text = document.getElementById('cmd-text');
+  copy?.addEventListener('click', () => {
+    const done = () => { copy.textContent = 'Copied'; setTimeout(() => { copy.textContent = 'Copy'; }, 1600); };
+    const select = () => { const r = document.createRange(); r.selectNodeContents(text); const s = getSelection(); s.removeAllRanges(); s.addRange(r); copy.textContent = 'Selected'; };
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text.textContent).then(done, select); else select();
+  });
+
+  const chips = document.querySelectorAll('.chip');
+  const rows = document.querySelectorAll('#gw-rows tr');
+  chips.forEach((chip) => chip.addEventListener('click', () => {
+    chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+    const f = chip.dataset.filter;
+    rows.forEach((row) => { row.hidden = f !== 'all' && !row.dataset.tags.split(' ').includes(f); });
+  }));
+
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach((tab) => tab.addEventListener('click', () => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+  }));
+})();
+</script>

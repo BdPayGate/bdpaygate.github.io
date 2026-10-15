@@ -1,0 +1,13 @@
+{
+    "name": "bdpaygate/website",
+    "description": "Build script for bdpaygate.github.io",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "league/commonmark": "^2.6"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
